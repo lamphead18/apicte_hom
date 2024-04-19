@@ -13,9 +13,9 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 
 
 $servername = "localhost"; // endereço do servidor
-$username = "gpsoftco_user"; // nome de usuário do banco de dados
-$password = "Odlareg2930"; // senha do banco de dados
-$dbname = "gpsoftco_notas"; // nome do banco de dados
+$username = "root"; // nome de usuário do banco de dados
+$password = ""; // senha do banco de dados
+$dbname = "cadastro"; // nome do banco de dados
     
 
 // Criar conexão

@@ -3,7 +3,7 @@
 $servername = "localhost"; // endereço do servidor
 $username = "root"; // nome de usuário do banco de dados
 $password = ""; // senha do banco de dados
-$dbname = "db-notas"; // nome do banco de dados
+$dbname = "cadastro"; // nome do banco de dados
 
 // Verifica se foi fornecido um ID válido na URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {

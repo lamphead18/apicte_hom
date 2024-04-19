@@ -12,9 +12,9 @@ require 'PHPMailer/src/Exception.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Conexão com o banco de dados
     $servername = "localhost"; // endereço do servidor
-    $username = "gpsoftco_user"; // nome de usuário do banco de dados
-    $password = "Odlareg2930"; // senha do banco de dados
-    $dbname = "gpsoftco_notas"; // nome do banco de dados
+    $username = "root"; // nome de usuário do banco de dados
+    $password = ""; // senha do banco de dados
+    $dbname = "cadastro"; // nome do banco de dados
     
     // Estabelece a conexão
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $cert_senha = mysqli_real_escape_string($conn, $_POST['cert_senha']);
     $uf = mysqli_real_escape_string($conn, $_POST['uf']);
-    
+
     // Cria uma pasta com o nome do CNPJ digitado
     $cnpj_folder = "cnpj/" . $cnpj;
     if (!file_exists($cnpj_folder)) {
@@ -60,14 +60,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Query SQL para inserir os dados na tabela
     $sql = "INSERT INTO cadastro (logo, cnpj, login, senha, nome, whatsapp, email, certificado, cert_senha, uf) VALUES ('$logo_destino', '$cnpj', '$login', '$senha', '$nome', '$whatsapp', '$email', '$certificado_destino', '$cert_senha', '$uf')";
     
-    if ($conn->query($sql) === TRUE) {
-        // Envia e-mail de notificação
-        enviarEmail("gpatricio.melo@gmail.com", "Cliente Novo", "Um novo cliente foi cadastrado. CNPJ: $cnpj");
+    // Verifica se o CNPJ e o login já existem no banco de dados
+    $sql_verificar = "SELECT cnpj, login FROM cadastro WHERE cnpj = '$cnpj' OR login = '$login'";
+    $resultado = $conn->query($sql_verificar);
+
+    if ($resultado->num_rows > 0) {
+        // CNPJ ou login já existem, exibe mensagem de erro
+        $error_message = "CNPJ ou login já estão em uso. Por favor, tente novamente.";
+      } else {
+        // CNPJ e login são únicos, continua com a inserção no banco de dados
+        $sql = "INSERT INTO cadastro (logo, cnpj, login, senha, nome, whatsapp, email, certificado, cert_senha, uf) VALUES ('$logo_destino', '$cnpj', '$login', '$senha', '$nome', '$whatsapp', '$email', '$certificado_destino', '$cert_senha', '$uf')";
         
-       $sucesso_message = "Cadastro realizado com sucesso!";
-    } else {
-        $error_message = "Erro ao cadastrar: " . $conn->error;
+        if ($conn->query($sql) === TRUE) {
+            // Envia e-mail de notificação
+            enviarEmail("gpatricio.melo@gmail.com", "Cliente Novo", "Um novo cliente foi cadastrado. CNPJ: $cnpj");
+            
+            $sucesso_message = "Cadastro realizado com sucesso!";
+        } else {
+            $error_message = "Erro ao cadastrar: " . $conn->error;
+        }
     }
+    
     
     // Fecha a conexão
     $conn->close();
